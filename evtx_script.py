@@ -9,23 +9,24 @@ file_path = "./evtx.xml"
 f = open(file_path, "w")
 
 def main():
-    get_xml(get_args())
-    parse_xml()
+    parse_xml(get_xml(get_args()))
 
-def parse_xml():
-    #xmldoc = minidom.parse(file_path)
-    tree = ET.ElementTree(file=file_path)
-    root = tree.getroot()
-    print(root)
-
+def parse_xml(events):
+    parsed_events = []
+    for event in events:
+        parsed_events.append(ET.fromstring(event))    #xmldoc = minidom.parse(file_path)
+    return parsed_events
 def get_xml(args):
     with evtx.Evtx(args.evtx) as log:
-        f.write(e_views.XML_HEADER)
-        f.write("<Events>\n")
+        #f.write(e_views.XML_HEADER)
+        #f.write("<Events>\n")
+        events = []
         for record in log.records():
             doc_xml = minidom.parseString(record.xml()).toprettyxml(indent="\t", newl="\n", encoding=None)
-            f.write(doc_xml.replace('<?xml version="1.0" ?>\n', '').replace("<", '\t<'))
-        f.write("</Events>")
+            events.append(doc_xml)
+            #f.write(doc_xml.replace('<?xml version="1.0" ?>\n', '').replace("<", '\t<'))
+        #f.write("</Events>")
+    return events
 
 def get_args():
     parser = argparse.ArgumentParser(
